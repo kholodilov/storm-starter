@@ -1,5 +1,6 @@
 package storm.starter;
 
+import storm.starter.bolt.FileWriteBolt;
 import storm.starter.spout.RandomSentenceSpout;
 import backtype.storm.Config;
 import backtype.storm.LocalCluster;
@@ -67,6 +68,11 @@ public class WordCountTopology {
                  .shuffleGrouping("spout");
         builder.setBolt("count", new WordCount(), 12)
                  .fieldsGrouping("split", new Fields("word"));
+        builder.setBolt("writetofilebyword", new FileWriteBolt("byword"), 3)
+                .fieldsGrouping("count", new Fields("word"));
+        builder.setBolt("writetofilebycount", new FileWriteBolt("bycount"), 3)
+                .fieldsGrouping("count", new Fields("count"));
+
 
         Config conf = new Config();
         conf.setDebug(true);
